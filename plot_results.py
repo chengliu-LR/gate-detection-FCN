@@ -7,7 +7,7 @@ import seaborn as sb
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-root_dir = "../gate_detection/"
+root_dir = "../gate-detection/"
 
 def ewma_average(loss, alpha):
     """
