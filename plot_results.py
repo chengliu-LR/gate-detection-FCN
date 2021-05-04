@@ -1,13 +1,14 @@
 import os
 import torch
-import numpy as np
 import cycler
+import numpy as np
 import pandas as pd
 import seaborn as sb
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 root_dir = "../gate-detection-FCN/"
+eval_frames = pd.read_csv(os.path.join(root_dir, "logs/eval_IoU_PA_inference.csv"))
 
 def ewma_average(loss, alpha):
     """
@@ -58,39 +59,48 @@ def plot_loss_curve():
     plt.savefig(root_dir+'figures/loss_curve.png')
 
 
-def plot_eval_bar(metric_id):
+def plot_bar(metric_id, ax, legend):
     assert metric_id in ['IoU', 'pixel acc.'], "Metric not defined: must either be \'IoU\' or \'pixel acc.\'"
     metric = {'IoU':1, 'pixel acc.':2}
     upsample_modes = ["32s", "16s", "8s"]
 
-    # set plot style
-    sb.set_style('whitegrid')
-    num_interval = 10
-    color = plt.cm.tab10(np.linspace(0, 1, num_interval))
-    mpl.rcParams['axes.prop_cycle'] = cycler.cycler('color', color)
-    mpl.rcParams.update({'font.size': 20})
-
-    plt.figure(dpi=500, figsize=(10, 7))
-    bar_labels = ['vgg-5', 'vgg-11', 'vgg-11-bn']
+    bar_labels = ['vgg5', 'vgg11', 'vgg11-bn']
     width = 0.1
-    eval_frames = pd.read_csv(os.path.join(root_dir, "logs/eval_IoU_PA_inference.csv"))
     # bar plot for IoU
     for vgg_config in range(3): # vgg-5, vgg-11, vgg-11-bn
         steps = [i+(vgg_config-1)*width for i in range(len(upsample_modes))]
-        plt.bar(steps,
+        ax.bar(x=steps,
                 height=eval_frames.iloc[[i + vgg_config for i in range(0, 9, 3)], metric[metric_id]],
                 width=width,
                 label=bar_labels[vgg_config])
     
-    plt.xticks([i for i in range(3)], upsample_modes)
-    plt.xlabel("FCN upsampling structures")
-    plt.ylabel("mean {}".format(metric_id))
-    plt.ylim(0, 1.0)
-    plt.legend(loc='lower right', framealpha=0.95)
+    ax.set_xticks([i for i in range(len(upsample_modes))])
+    ax.set_xticklabels(upsample_modes)
+    #ax.set_xlabel("FCN upsampling structures", fontsize=20)
+    ax.set_ylabel("mean {}".format(metric_id), fontsize=20)
+    ax.set_ylim(0, 1.0)
+
+    if legend:
+        ax.legend(loc='lower right', framealpha=0.95)
+
+
+def plot_IoU_PixelAcc():
+    plt.figure(dpi=500, figsize=(10, 5))
+    # set plot style
+    sb.set_style('whitegrid')
+    num_interval = 10
+    color = plt.cm.tab10(np.linspace(0, 1, num_interval)) # tab10 with 10 intervals
+    mpl.rcParams['axes.prop_cycle'] = cycler.cycler('color', color)
+    mpl.rcParams.update({'font.size': 20})
+    # subplots
+    ax1 = plt.subplot(1, 2, 1)
+    ax2 = plt.subplot(1, 2, 2)
+    plot_bar('IoU', ax1, legend=False)
+    plot_bar('pixel acc.', ax2, legend=True)
     plt.tight_layout()
-    plt.savefig(root_dir+'figures/mean_{}.png'.format('IoU' if metric[metric_id] == 1 else 'PixelAcc'))
+    plt.savefig(root_dir+'figures/mean_IoU_PixelAcc.png')
+
 
 if __name__ == '__main__':
     plot_loss_curve()
-    plot_eval_bar('pixel acc.')
-    plot_eval_bar('IoU')
+    plot_IoU_PixelAcc()
