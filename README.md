@@ -1,4 +1,5 @@
 # gate-detection-FCN
 
-A gate detection task based on Fully Convolutional Neural Network (FCNs) for drone racing.
+Gate detection via Semantic Segmentation Based on Fully Convolutional Networks in Autonomous Drone Racing.
+
 ![FCN-8s](./figures/FCN-8s.png)
