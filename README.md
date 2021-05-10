@@ -1,5 +1,5 @@
 # gate-detection-FCN
 
-Gate detection via Semantic Segmentation Based on Fully Convolutional Networks in Autonomous Drone Racing.
+Recognizing Gates via Semantic SegmentationBased on Fully Convolutional Networks inAutonomous Drone Racing
 
 ![FCN-8s](./figures/FCN-8s.png)
